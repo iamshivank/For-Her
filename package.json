@@ -1,27 +1,98 @@
 {
   "name": "cyclewise",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Privacy-first period and reproductive health tracker PWA",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "next dev",
+    "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "export": "next export",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "android:build": "bash scripts/build-android.sh debug",
+    "android:release": "bash scripts/build-android.sh release",
+    "android:both": "bash scripts/build-android.sh both",
+    "pwa:validate": "lighthouse http://localhost:3000 --view",
+    "analyze": "cross-env ANALYZE=true next build",
+    "type-check": "tsc --noEmit"
   },
+  "keywords": [
+    "period-tracker",
+    "menstrual-health",
+    "reproductive-health",
+    "pwa",
+    "privacy",
+    "offline-first",
+    "health-app"
+  ],
+  "author": "CycleWise Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/cyclewise.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/cyclewise/issues"
+  },
+  "homepage": "https://cyclewise.app",
   "dependencies": {
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.5.2"
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "crypto-js": "^4.2.0",
+    "date-fns": "^4.1.0",
+    "dexie": "^4.0.8",
+    "i18next": "^23.15.1",
+    "lucide-react": "^0.446.0",
+    "next": "15.5.2",
+    "next-pwa": "^5.6.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-i18next": "^15.0.2",
+    "recharts": "^2.12.7",
+    "tailwind-merge": "^2.5.3",
+    "workbox-webpack-plugin": "^7.1.0",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
-    "eslint": "^9",
+    "@playwright/test": "^1.48.2",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
+    "@types/crypto-js": "^4.2.2",
+    "@types/node": "^22.9.0",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.15.0",
     "eslint-config-next": "15.5.2",
-    "@eslint/eslintrc": "^3"
+    "jsdom": "^25.0.1",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CycleWise - Offline</title>
+    <link rel="icon" href="/favicon.ico">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #fdf2f8 0%, #faf5ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 500px;
+        }
+        
+        .icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: #ec4899;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+        
+        h1 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        p {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .features {
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .feature:last-child {
+            margin-bottom: 0;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        
+        .retry-btn {
+            background: #ec4899;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .retry-btn:hover {
+            background: #db2777;
+        }
+        
+        .status {
+            margin-top: 1rem;
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            📱
+        </div>
+        
+        <h1>You're Offline</h1>
+        
+        <p>
+            Don't worry! CycleWise works offline. You can continue tracking your health data, 
+            and everything will sync when you're back online.
+        </p>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>Log periods and symptoms</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>View your cycle predictions</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>Access breathing exercises</span>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">✓</div>
+                <span>Browse your calendar</span>
+            </div>
+        </div>
+        
+        <button class="retry-btn" onclick="checkConnection()">
+            Try Again
+        </button>
+        
+        <div class="status" id="status">
+            Check your internet connection and try again.
+        </div>
+    </div>
+
+    <script>
+        function checkConnection() {
+            const status = document.getElementById('status');
+            const btn = document.querySelector('.retry-btn');
+            
+            btn.textContent = 'Checking...';
+            btn.disabled = true;
+            status.textContent = 'Checking connection...';
+            
+            // Try to fetch a small resource
+            fetch('/', { 
+                method: 'HEAD',
+                cache: 'no-cache'
+            })
+            .then(response => {
+                if (response.ok) {
+                    status.textContent = 'Connection restored! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            })
+            .catch(() => {
+                btn.textContent = 'Try Again';
+                btn.disabled = false;
+                status.textContent = 'Still offline. Check your internet connection.';
+            });
+        }
+        
+        // Auto-retry every 30 seconds
+        setInterval(() => {
+            if (navigator.onLine) {
+                checkConnection();
+            }
+        }, 30000);
+        
+        // Listen for online events
+        window.addEventListener('online', () => {
+            checkConnection();
+        });
+        
+        window.addEventListener('offline', () => {
+            const status = document.getElementById('status');
+            status.textContent = 'You are currently offline.';
+        });
+    </script>
+</body>
+</html>
