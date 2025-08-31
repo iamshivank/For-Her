@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -59,7 +60,7 @@ export function PeriodLogForm({ onComplete, onCancel }: PeriodLogFormProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Start Date */}
-          <div className="space-y-2">
+          <motion.div className="space-y-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <Label htmlFor="startDate">Start Date *</Label>
             <Input
               id="startDate"
@@ -68,10 +69,10 @@ export function PeriodLogForm({ onComplete, onCancel }: PeriodLogFormProps) {
               onChange={(e) => setStartDate(e.target.value)}
               required
             />
-          </div>
+          </motion.div>
 
           {/* End Date */}
-          <div className="space-y-2">
+          <motion.div className="space-y-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <Label htmlFor="endDate">End Date (optional)</Label>
             <Input
               id="endDate"
@@ -83,10 +84,10 @@ export function PeriodLogForm({ onComplete, onCancel }: PeriodLogFormProps) {
             <p className="text-xs text-gray-500">
               Leave empty if your period is ongoing
             </p>
-          </div>
+          </motion.div>
 
           {/* Flow Intensity */}
-          <div className="space-y-3">
+          <motion.div className="space-y-3" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <Label>Flow Intensity</Label>
             <div className="space-y-2">
               {Object.entries(FLOW_DESCRIPTIONS).map(([value, description]) => (
@@ -124,10 +125,10 @@ export function PeriodLogForm({ onComplete, onCancel }: PeriodLogFormProps) {
                 </label>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Notes */}
-          <div className="space-y-2">
+          <motion.div className="space-y-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <Label htmlFor="notes">Notes (optional)</Label>
             <textarea
               id="notes"
@@ -136,7 +137,7 @@ export function PeriodLogForm({ onComplete, onCancel }: PeriodLogFormProps) {
               placeholder="Any additional details about your period..."
               className="w-full p-3 border border-gray-300 rounded-md resize-none h-20 text-sm"
             />
-          </div>
+          </motion.div>
 
           {/* Actions */}
           <div className="flex gap-3 pt-4">

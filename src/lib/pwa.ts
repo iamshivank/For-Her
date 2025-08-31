@@ -313,4 +313,7 @@ export function initializePWA(): void {
     document.body.classList.add('offline')
     window.dispatchEvent(new CustomEvent('pwa-offline'))
   })
+
+  // Warm up backend API for faster first call
+  fetch('/api/healthcheck').catch(() => {})
 }

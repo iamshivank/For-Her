@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 import { LoginForm } from '@/components/auth/LoginForm'
 import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow'
 import { Dashboard } from '@/components/dashboard/Dashboard'
@@ -16,10 +17,10 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
+        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
-        </div>
+        </motion.div>
       </div>
     )
   }

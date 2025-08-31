@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -57,7 +58,8 @@ export function LoginForm({ isFirstTime = false, onCreatePassphrase }: LoginForm
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 p-4">
-      <Card className="w-full max-w-md">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+      <Card className="w-full max-w-md backdrop-blur supports-[backdrop-filter]:bg-white/80">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 p-3 rounded-full bg-pink-100">
             {isFirstTime ? <Shield className="w-8 h-8 text-pink-600" /> : <Lock className="w-8 h-8 text-pink-600" />}
@@ -152,6 +154,7 @@ export function LoginForm({ isFirstTime = false, onCreatePassphrase }: LoginForm
           </div>
         </CardContent>
       </Card>
+      </motion.div>
     </div>
   )
 }

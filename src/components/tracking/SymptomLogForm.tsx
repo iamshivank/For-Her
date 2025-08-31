@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -84,7 +85,7 @@ export function SymptomLogForm({ onComplete, onCancel }: SymptomLogFormProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Date */}
-          <div className="space-y-2">
+          <motion.div className="space-y-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <Label htmlFor="date">Date</Label>
             <Input
               id="date"
@@ -93,11 +94,11 @@ export function SymptomLogForm({ onComplete, onCancel }: SymptomLogFormProps) {
               onChange={(e) => setDate(e.target.value)}
               required
             />
-          </div>
+          </motion.div>
 
           {/* Selected Symptoms */}
           {selectedSymptoms.length > 0 && (
-            <div className="space-y-2">
+            <motion.div className="space-y-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
               <Label>Selected Symptoms ({selectedSymptoms.length})</Label>
               <div className="flex flex-wrap gap-2">
                 {selectedSymptoms.map((symptom) => (
@@ -116,11 +117,11 @@ export function SymptomLogForm({ onComplete, onCancel }: SymptomLogFormProps) {
                   </span>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Symptom Categories */}
-          <div className="space-y-4">
+          <motion.div className="space-y-4" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <Label>Choose Symptoms</Label>
             
             {Object.entries(SYMPTOM_CATEGORIES).map(([category, symptoms]) => (
@@ -146,10 +147,10 @@ export function SymptomLogForm({ onComplete, onCancel }: SymptomLogFormProps) {
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Add Custom Symptom */}
-          <div className="space-y-2">
+          <motion.div className="space-y-2" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <Label htmlFor="customSymptom">Add Custom Symptom</Label>
             <div className="flex gap-2">
               <Input
@@ -169,11 +170,11 @@ export function SymptomLogForm({ onComplete, onCancel }: SymptomLogFormProps) {
                 <Plus className="w-4 h-4" />
               </Button>
             </div>
-          </div>
+          </motion.div>
 
           {/* Intensity */}
           {selectedSymptoms.length > 0 && (
-            <div className="space-y-3">
+            <motion.div className="space-y-3" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
               <Label>Overall Intensity</Label>
               <div className="space-y-2">
                 {[1, 2, 3, 4, 5].map((value) => (
@@ -217,7 +218,7 @@ export function SymptomLogForm({ onComplete, onCancel }: SymptomLogFormProps) {
                   </label>
                 ))}
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Notes */}

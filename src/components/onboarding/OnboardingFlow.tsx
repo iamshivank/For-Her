@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -238,7 +239,17 @@ export function OnboardingFlow({ passphrase }: OnboardingFlowProps) {
         </CardHeader>
         
         <CardContent>
-          {currentStep.content}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25 }}
+            >
+              {currentStep.content}
+            </motion.div>
+          </AnimatePresence>
           
           <div className="flex justify-between mt-8">
             <Button

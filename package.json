@@ -41,6 +41,7 @@
   },
   "homepage": "https://cyclewise.app",
   "dependencies": {
+    "@prisma/client": "^6.15.0",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "class-variance-authority": "^0.7.0",
@@ -48,10 +49,12 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "dexie": "^4.0.8",
+    "framer-motion": "^12.23.12",
     "i18next": "^23.15.1",
     "lucide-react": "^0.446.0",
     "next": "15.5.2",
     "next-pwa": "^5.6.0",
+    "openai": "^5.16.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-i18next": "^15.0.2",
@@ -75,6 +78,7 @@
     "eslint-config-next": "15.5.2",
     "jsdom": "^25.0.1",
     "postcss": "^8.5.6",
+    "prisma": "^6.15.0",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.6.3",
     "vitest": "^2.1.4"

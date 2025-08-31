@@ -1,0 +1,47 @@
+// Prisma schema for CycleWise backend storage
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id // stable hash of passphrase from client
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  records   EncryptedRecord[]
+}
+
+// Generic encrypted storage bucket to keep privacy: server never sees plaintext
+model EncryptedRecord {
+  id        String   @id
+  userId    String
+  table     String   // one of: healthProfile, periodLogs, symptomLogs, moodLogs, breathingSessions
+  encrypted String   // base64 JSON blob from client-side encryption
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, table])
+}
+
+// Non-sensitive predictions can be stored as JSON for convenience
+model PredictionItem {
+  id        String   @id
+  userId    String
+  date      DateTime
+  type      String
+  confidence Float
+  explanation String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, date])
+}
+

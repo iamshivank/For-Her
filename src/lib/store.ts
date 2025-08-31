@@ -11,6 +11,17 @@ import {
   MoodLog 
 } from './types'
 import { db } from './database'
+
+// Cloud sync helpers
+async function postJSON<T>(url: string, body: any): Promise<T> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  })
+  if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+  return res.json()
+}
 import { generatePredictions, calculateCycleStats, getCurrentPhase } from './predictions'
 
 interface AppState {
@@ -84,6 +95,7 @@ interface AppState {
   exportData: () => Promise<any>
   importData: (data: any) => Promise<void>
   wipeAllData: () => Promise<void>
+  changePassphrase: (oldPassphrase: string, newPassphrase: string) => Promise<boolean>
 }
 
 export const useAppStore = create<AppState>()(
@@ -127,6 +139,27 @@ export const useAppStore = create<AppState>()(
           
           // Load all encrypted data
           await get().initializeApp()
+
+          // Best-effort background cloud sync (if user enabled in prefs)
+          try {
+            const prefs = await db.getUserPrefs()
+            if (prefs.consentFlags.cloudSync) {
+              await get().exportData().then(async (snapshot) => {
+                const userId = btoa(passphrase).replace(/=+$/,'')
+                await postJSON('/api/sync', {
+                  userId,
+                  ops: [
+                    // Send encrypted buckets by table as a single record per item
+                    ...snapshot.data.periodLogs.map((l: any) => ({ id: l.id, table: 'periodLogs', encrypted: btoa(JSON.stringify(l)), action: 'upsert' })),
+                    ...snapshot.data.symptomLogs.map((l: any) => ({ id: l.id, table: 'symptomLogs', encrypted: btoa(JSON.stringify(l)), action: 'upsert' })),
+                    ...snapshot.data.moodLogs.map((l: any) => ({ id: l.id, table: 'moodLogs', encrypted: btoa(JSON.stringify(l)), action: 'upsert' })),
+                    ...snapshot.data.breathingSessions.map((l: any) => ({ id: l.id, table: 'breathingSessions', encrypted: btoa(JSON.stringify(l)), action: 'upsert' })),
+                    snapshot.data.healthProfile ? [{ id: 'health-profile', table: 'healthProfile', encrypted: btoa(JSON.stringify(snapshot.data.healthProfile)), action: 'upsert' }] : []
+                  ].flat()
+                })
+              })
+            }
+          } catch {}
           
           return true
         } catch (error) {
@@ -240,6 +273,16 @@ export const useAppStore = create<AppState>()(
           set({ periodLogs: updatedLogs })
           
           await get().refreshPredictions()
+
+          // Background sync
+          try {
+            const prefs = await db.getUserPrefs()
+            if (prefs.consentFlags.cloudSync) {
+              const last = updatedLogs[updatedLogs.length - 1]
+              const userId = btoa(passphrase).replace(/=+$/,'')
+              await postJSON('/api/sync', { userId, ops: [{ id: last.id, table: 'periodLogs', encrypted: btoa(JSON.stringify(last)), action: 'upsert' }] })
+            }
+          } catch {}
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'Failed to add period log' })
         }
@@ -289,6 +332,15 @@ export const useAppStore = create<AppState>()(
           await db.addSymptomLog(log, passphrase)
           const updatedLogs = await db.getSymptomLogs(passphrase)
           set({ symptomLogs: updatedLogs })
+
+          try {
+            const prefs = await db.getUserPrefs()
+            if (prefs.consentFlags.cloudSync) {
+              const last = updatedLogs[updatedLogs.length - 1]
+              const userId = btoa(passphrase).replace(/=+$/,'')
+              await postJSON('/api/sync', { userId, ops: [{ id: last.id, table: 'symptomLogs', encrypted: btoa(JSON.stringify(last)), action: 'upsert' }] })
+            }
+          } catch {}
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'Failed to add symptom log' })
         }
@@ -334,6 +386,15 @@ export const useAppStore = create<AppState>()(
           await db.addMoodLog(log, passphrase)
           const updatedLogs = await db.getMoodLogs(passphrase)
           set({ moodLogs: updatedLogs })
+
+          try {
+            const prefs = await db.getUserPrefs()
+            if (prefs.consentFlags.cloudSync) {
+              const last = updatedLogs[updatedLogs.length - 1]
+              const userId = btoa(passphrase).replace(/=+$/,'')
+              await postJSON('/api/sync', { userId, ops: [{ id: last.id, table: 'moodLogs', encrypted: btoa(JSON.stringify(last)), action: 'upsert' }] })
+            }
+          } catch {}
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'Failed to add mood log' })
         }
@@ -348,6 +409,15 @@ export const useAppStore = create<AppState>()(
           await db.addBreathingSession(session, passphrase)
           const updatedSessions = await db.getBreathingSessions(passphrase)
           set({ breathingSessions: updatedSessions })
+
+          try {
+            const prefs = await db.getUserPrefs()
+            if (prefs.consentFlags.cloudSync) {
+              const last = updatedSessions[updatedSessions.length - 1]
+              const userId = btoa(passphrase).replace(/=+$/,'')
+              await postJSON('/api/sync', { userId, ops: [{ id: last.id, table: 'breathingSessions', encrypted: btoa(JSON.stringify(last)), action: 'upsert' }] })
+            }
+          } catch {}
         } catch (error) {
           set({ error: error instanceof Error ? error.message : 'Failed to add breathing session' })
         }
@@ -459,6 +529,48 @@ export const useAppStore = create<AppState>()(
             error: error instanceof Error ? error.message : 'Failed to wipe data',
             isLoading: false 
           })
+        }
+      }
+      ,
+
+      changePassphrase: async (oldPassphrase: string, newPassphrase: string) => {
+        try {
+          set({ isLoading: true, error: null })
+          const { passphrase } = get()
+          if (!passphrase) throw new Error('Not authenticated')
+          // Verify old matches current
+          if (passphrase !== oldPassphrase) throw new Error('Current passphrase is incorrect')
+
+          // Re-encrypt all local data
+          await db.reencryptAll(oldPassphrase, newPassphrase)
+
+          // Update in-memory state
+          set({ passphrase: newPassphrase })
+
+          // Optional: trigger a background sync snapshot if enabled
+          try {
+            const prefs = await db.getUserPrefs()
+            if (prefs.consentFlags.cloudSync) {
+              const snapshot = await get().exportData()
+              const userId = btoa(newPassphrase).replace(/=+$/,'')
+              await postJSON('/api/sync', {
+                userId,
+                ops: [
+                  ...snapshot.data.periodLogs.map((l: any) => ({ id: l.id, table: 'periodLogs', encrypted: btoa(JSON.stringify(l)), action: 'upsert' })),
+                  ...snapshot.data.symptomLogs.map((l: any) => ({ id: l.id, table: 'symptomLogs', encrypted: btoa(JSON.stringify(l)), action: 'upsert' })),
+                  ...snapshot.data.moodLogs.map((l: any) => ({ id: l.id, table: 'moodLogs', encrypted: btoa(JSON.stringify(l)), action: 'upsert' })),
+                  ...snapshot.data.breathingSessions.map((l: any) => ({ id: l.id, table: 'breathingSessions', encrypted: btoa(JSON.stringify(l)), action: 'upsert' })),
+                  snapshot.data.healthProfile ? [{ id: 'health-profile', table: 'healthProfile', encrypted: btoa(JSON.stringify(snapshot.data.healthProfile)), action: 'upsert' }] : []
+                ].flat()
+              })
+            }
+          } catch {}
+
+          set({ isLoading: false })
+          return true
+        } catch (e) {
+          set({ isLoading: false, error: e instanceof Error ? e.message : 'Failed to change passphrase' })
+          return false
         }
       }
     }),

@@ -57,6 +57,13 @@ const nextConfig: NextConfig = {
     domains: [],
     formats: ['image/webp', 'image/avif'],
   },
+
+  experimental: {
+    optimizePackageImports: [
+      'date-fns',
+      'lucide-react'
+    ]
+  },
 };
 
 export default nextConfig;

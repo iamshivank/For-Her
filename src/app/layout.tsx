@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from '@/components/auth/AuthProvider'
@@ -21,17 +21,15 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-  ],
 };
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#ec4899",
+}
 
 export default function RootLayout({
   children,
@@ -43,11 +41,14 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
-        <meta name="theme-color" content="#ec4899" />
       </head>
       <body
         className={`${inter.variable} antialiased min-h-screen bg-background font-sans`}
       >
+        {/* Animated gradient background */}
+        <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)]">
+          <div className="absolute -inset-[10%] animate-[spin_18s_linear_infinite] bg-[conic-gradient(from_0deg,theme(colors.pink.200),theme(colors.purple.200),theme(colors.pink.200))] opacity-30" />
+        </div>
         <PWAProvider>
           <AuthProvider>
             {children}

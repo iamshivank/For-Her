@@ -385,6 +385,27 @@ class CycleWiseDB extends Dexie {
     })
   }
 
+  // Re-encrypt all encrypted tables with a new passphrase
+  async reencryptAll(oldPassphrase: string, newPassphrase: string): Promise<void> {
+    // For each encrypted table, read decrypted with old, write encrypted with new
+    const tables: Array<{ name: keyof CycleWiseDB, schema: any }> = [
+      { name: 'healthProfile', schema: HealthProfileSchema },
+      { name: 'periodLogs', schema: PeriodLogSchema },
+      { name: 'symptomLogs', schema: SymptomLogSchema },
+      { name: 'moodLogs', schema: MoodLogSchema },
+      { name: 'breathingSessions', schema: BreathingSessionSchema },
+    ]
+
+    for (const t of tables) {
+      const all = await this.getAllDecrypted<any>(t.name, oldPassphrase, t.schema)
+      // Clear table then re-put with new key
+      await (this[t.name] as any).clear()
+      for (const item of all) {
+        await this.putEncrypted(t.name, item, newPassphrase)
+      }
+    }
+  }
+
   // Wipe all data
   async wipeAllData(): Promise<void> {
     await this.delete()
