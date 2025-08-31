@@ -19,7 +19,8 @@
     "android:both": "bash scripts/build-android.sh both",
     "pwa:validate": "lighthouse http://localhost:3000 --view",
     "analyze": "cross-env ANALYZE=true next build",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "postinstall": "prisma generate"
   },
   "keywords": [
     "period-tracker",
@@ -51,14 +52,13 @@
     "date-fns": "^4.1.0",
     "dexie": "^4.0.8",
     "framer-motion": "^12.23.12",
-    "i18next": "^23.15.1",
+    "i18next": "^25.4.2",
     "lucide-react": "^0.446.0",
     "next": "15.5.2",
     "next-pwa": "^5.6.0",
-    "openai": "^5.16.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
-    "react-i18next": "^15.0.2",
+    "react-i18next": "^15.7.2",
     "recharts": "^2.12.7",
     "tailwind-merge": "^2.5.3",
     "workbox-webpack-plugin": "^7.1.0",
