@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import OpenAI from 'openai'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const apiKey = process.env.OPENAI_API_KEY
-const client = apiKey ? new OpenAI({ apiKey }) : null
+const apiKey = process.env.GEMINI_API_KEY
+const client = apiKey ? new GoogleGenerativeAI(apiKey) : null
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,21 +11,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'AI not configured' }, { status: 501 })
     }
 
-    const system = `You are CycleWise, a private reproductive health assistant. Provide empathetic, concise, evidence-informed insights.
-Safety: avoid diagnosis; suggest seeing a clinician when appropriate.`
+    const system = `You are CycleWise, a private reproductive health assistant. Provide empathetic, concise, evidence-informed insights. Safety: avoid diagnosis; suggest seeing a clinician when appropriate.`
 
-    const messages = [
-      { role: 'system', content: system },
-      { role: 'user', content: `${prompt}\n\nContext: ${JSON.stringify(context).slice(0, 6000)}` }
-    ] as any
-
-    const completion = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
-      temperature: 0.4,
-      messages
-    })
-
-    const text = completion.choices?.[0]?.message?.content ?? 'No response.'
+    const genModel = client.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const input = `${system}\n\nUser: ${prompt}\n\nContext: ${JSON.stringify(context).slice(0, 6000)}`
+    const result = await genModel.generateContent({ contents: [{ role: 'user', parts: [{ text: input }] }], generationConfig: { temperature: 0.4 } })
+    const text = result.response.text() || 'No response.'
     return NextResponse.json({ text })
   } catch (error) {
     console.error('AI error', error)
