@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import { PWAProvider } from '@/components/pwa/PWAProvider'
@@ -54,6 +55,7 @@ export default function RootLayout({
             {children}
           </AuthProvider>
         </PWAProvider>
+        <Analytics />
       </body>
     </html>
   );
